@@ -87,8 +87,7 @@ import com.example.aman.data.CategoryRepository
 import com.example.aman.data.SupabaseClient
 import com.example.aman.data.Video
 import com.example.aman.data.VideoRepository
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -240,15 +239,10 @@ fun homescreen() {
                 snackbarHost = { SnackbarHost(snackbarHostState) },
                 containerColor = Color.Black
             ) { paddingValues ->
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(rememberPullToRefreshState().nestedScrollConnection)
-                ) {
-                    val pullRefreshState = rememberPullToRefreshState()
-                    
-                    // Handle refresh state
-                    if (pullRefreshState.isRefreshing) {
-                        LaunchedEffect(true) {
+                PullToRefreshBox(
+                    isRefreshing = isRefreshing,
+                    onRefresh = {
+                        scope.launch {
                             try {
                                 isRefreshing = true
                                 categories = CategoryRepository.getCategories()
@@ -262,10 +256,10 @@ fun homescreen() {
                                 snackbarHostState.showSnackbar("Error refreshing data: ${e.message}")
                             } finally {
                                 isRefreshing = false
-                                pullRefreshState.endRefresh()
                             }
                         }
                     }
+                ) {
                     
                     when (selectedTab) {
                         0 -> {
@@ -326,12 +320,6 @@ fun homescreen() {
                             }
                         }
                     }
-                    
-                    // Add PullToRefreshContainer at the top of the Box
-                    PullToRefreshContainer(
-                        modifier = Modifier.align(Alignment.TopCenter),
-                        state = pullRefreshState
-                    )
                 }
             }
             

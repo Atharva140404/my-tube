@@ -7,8 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
@@ -19,8 +17,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.LoadState
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
@@ -100,7 +96,7 @@ fun MyTubeHomeScreen(
             }
 
             // 4. Videos list with pagination
-            items(
+            androidx.paging.compose.items(
                 count = videos.itemCount,
                 key = { index -> videos[index]?.id ?: index }
             ) { index ->
@@ -312,7 +308,7 @@ fun CategorySection(
  * Video card component for displaying video items in home screen
  */
 @Composable
-private fun HomeVideoCard(
+internal fun HomeVideoCard(
     video: Video,
     onClick: () -> Unit
 ) {
