@@ -5,12 +5,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.paging.compose.items
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,8 +28,6 @@ import com.example.aman.data.Category
 import com.example.aman.data.SliderItem
 import com.example.aman.data.Video
 import com.example.aman.ui.shimmerEffect
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 /**
  * Main home screen for MyTube app with hybrid loading strategy
@@ -41,22 +39,13 @@ fun MyTubeHomeScreen(
 ) {
     val videos = viewModel.videosPagingFlow.collectAsLazyPagingItems()
     val isRefreshing by viewModel.isLoading.collectAsState()
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
 
     // Collect UI state
     val sliderItems by viewModel.sliderItems.collectAsState(initial = emptyList())
     val categories by viewModel.categories.collectAsState(initial = emptyList())
 
-    // Handle refresh state
-    LaunchedEffect(swipeRefreshState.isRefreshing) {
-        if (swipeRefreshState.isRefreshing) {
-            viewModel.refresh()
-            // The ViewModel will update the isLoading state when refresh is complete
-        }
-    }
-
-    SwipeRefresh(
-        state = swipeRefreshState,
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
         onRefresh = { viewModel.refresh() }
     ) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -117,7 +106,7 @@ fun MyTubeHomeScreen(
             ) { index ->
                 val video = videos[index]
                 if (video != null) {
-                    VideoCard(
+                    HomeVideoCard(
                         video = video,
                         onClick = { /* Handle video click */ }
                     )
@@ -212,7 +201,7 @@ fun ErrorItem(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.error
         )
-        androidx.compose.material3.Button(
+        Button(
             onClick = onRetryClick,
             modifier = Modifier.padding(top = 8.dp)
         ) {
@@ -227,8 +216,7 @@ fun ErrorItem(
 @Composable
 fun SliderSection(
     items: List<SliderItem>,
-    modifier: Modifier = Modifier,
-    onItemClick: (SliderItem) -> Unit = {}
+    modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
 
@@ -321,10 +309,10 @@ fun CategorySection(
 }
 
 /**
- * Video card component for displaying video items
+ * Video card component for displaying video items in home screen
  */
 @Composable
-private fun VideoCard(
+private fun HomeVideoCard(
     video: Video,
     onClick: () -> Unit
 ) {

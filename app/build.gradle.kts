@@ -76,12 +76,10 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     
     // Material3 with pull-to-refresh
-    implementation("androidx.compose.material3:material3:1.2.0")
-    implementation("androidx.compose.material3:material3-window-size-class:1.2.0")
-    implementation("androidx.compose.material3:material3:1.2.0")
+    implementation("androidx.compose.material3:material3:1.3.0")
+    implementation("androidx.compose.material3:material3-window-size-class:1.3.0")
     
-    // Pull to refresh
-    implementation("com.google.accompanist:accompanist-swiperefresh:0.32.0")
+    // System UI controller (keeping only this one from accompanist)
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
     
     // Accompanist Pager for ViewPager implementation
