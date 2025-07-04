@@ -5,11 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.paging.compose.items
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,17 +16,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.LoadState
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.compose.foundation.lazy.items
 import com.example.aman.data.Category
 import com.example.aman.data.SliderItem
 import com.example.aman.data.Video
 import com.example.aman.ui.shimmerEffect
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 /**
  * Main home screen for MyTube app with hybrid loading strategy
@@ -39,27 +32,60 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 fun MyTubeHomeScreen(
     viewModel: MyTubeViewModel = viewModel()
 ) {
-    val videos = viewModel.videosPagingFlow.collectAsLazyPagingItems()
     val isRefreshing by viewModel.isLoading.collectAsState()
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
 
     // Collect UI state
     val sliderItems by viewModel.sliderItems.collectAsState(initial = emptyList())
     val categories by viewModel.categories.collectAsState(initial = emptyList())
-
-    // Handle refresh state
-    LaunchedEffect(swipeRefreshState.isRefreshing) {
-        if (swipeRefreshState.isRefreshing) {
-            viewModel.refresh()
-            // The ViewModel will update the isLoading state when refresh is complete
-        }
+    
+    // Mock some videos for demonstration
+    val mockVideos = remember { 
+        listOf(
+            Video(
+                id = "1",
+                title = "Sample Video 1",
+                channelName = "Sample Channel",
+                viewCount = "1.2M",
+                uploadDate = "2 days ago",
+                thumbnailUrl = null,
+                url = "https://example.com/video1",
+                categoryId = "1"
+            ),
+            Video(
+                id = "2", 
+                title = "Sample Video 2",
+                channelName = "Another Channel",
+                viewCount = "850K",
+                uploadDate = "1 week ago",
+                thumbnailUrl = null,
+                url = "https://example.com/video2",
+                categoryId = "1"
+            )
+        )
     }
 
-    SwipeRefresh(
-        state = swipeRefreshState,
-        onRefresh = { viewModel.refresh() }
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Simple refresh button in place of pull-to-refresh
+        if (isRefreshing) {
+            LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        
         LazyColumn(modifier = Modifier.fillMaxSize()) {
+            // Refresh button as first item
+            item(key = "refresh") {
+                Button(
+                    onClick = { viewModel.refresh() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    enabled = !isRefreshing
+                ) {
+                    Text(if (isRefreshing) "Refreshing..." else "Refresh")
+                }
+            }
+
             // 1. Slider (Immediate load)
             item(key = "slider") {
                 if (sliderItems.isNotEmpty()) {
@@ -110,53 +136,17 @@ fun MyTubeHomeScreen(
                 )
             }
 
-            // 4. Videos list with pagination
-            items(
-                count = videos.itemCount,
-                key = { index -> videos[index]?.id ?: index }
-            ) { index ->
-                val video = videos[index]
-                if (video != null) {
-                    VideoCard(
-                        video = video,
-                        onClick = { /* Handle video click */ }
-                    )
-                } else {
-                    VideoCardPlaceholder()
-                }
+            // 4. Videos list
+            items(mockVideos) { video ->
+                HomeVideoCard(
+                    video = video,
+                    onClick = { /* Handle video click */ }
+                )
             }
 
-            // 5. Loading indicator for pagination
-            when (videos.loadState.append) {
-                is LoadState.Loading -> {
-                    item { LoadingSpinner() }
-                }
-                is LoadState.Error -> {
-                    item {
-                        ErrorItem(
-                            message = "Error loading more videos",
-                            onRetryClick = { videos.retry() }
-                        )
-                    }
-                }
-                else -> { /* No-op */ }
-            }
-
-            // Initial load states
-            when (videos.loadState.refresh) {
-                is LoadState.Error -> {
-                    item {
-                        ErrorItem(
-                            message = "Error loading videos",
-                            onRetryClick = { videos.retry() }
-                        )
-                    }
-                }
-                is LoadState.Loading -> {
-                    // We're already showing placeholders for the first page,
-                    // so we don't need to show a loading spinner here
-                }
-                else -> { /* No-op */ }
+            // 5. Loading indicator
+            if (isRefreshing) {
+                item { LoadingSpinner() }
             }
         }
     }
@@ -324,7 +314,7 @@ fun CategorySection(
  * Video card component for displaying video items
  */
 @Composable
-private fun VideoCard(
+private fun HomeVideoCard(
     video: Video,
     onClick: () -> Unit
 ) {

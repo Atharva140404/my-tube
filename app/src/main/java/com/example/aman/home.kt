@@ -49,6 +49,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -76,6 +77,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -240,17 +242,11 @@ fun homescreen() {
                 snackbarHost = { SnackbarHost(snackbarHostState) },
                 containerColor = Color.Black
             ) { paddingValues ->
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(rememberPullToRefreshState().nestedScrollConnection)
-                ) {
-                    val pullRefreshState = rememberPullToRefreshState()
-                    
+                Box(modifier = Modifier.fillMaxSize()) {
                     // Handle refresh state
-                    if (pullRefreshState.isRefreshing) {
+                    if (isRefreshing) {
                         LaunchedEffect(true) {
                             try {
-                                isRefreshing = true
                                 categories = CategoryRepository.getCategories()
                                 videos = selectedCategory?.let { category ->
                                     category.id?.let { categoryId ->
@@ -262,7 +258,6 @@ fun homescreen() {
                                 snackbarHostState.showSnackbar("Error refreshing data: ${e.message}")
                             } finally {
                                 isRefreshing = false
-                                pullRefreshState.endRefresh()
                             }
                         }
                     }
@@ -327,11 +322,14 @@ fun homescreen() {
                         }
                     }
                     
-                    // Add PullToRefreshContainer at the top of the Box
-                    PullToRefreshContainer(
-                        modifier = Modifier.align(Alignment.TopCenter),
-                        state = pullRefreshState
-                    )
+                    // Simple refresh indicator
+                    if (isRefreshing) {
+                        LinearProgressIndicator(
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .fillMaxWidth()
+                        )
+                    }
                 }
             }
             
@@ -741,6 +739,8 @@ fun FullScreenVideoPlayer(
 
     // Apply immersive fullscreen mode
     DisposableEffect(Unit) {
+        var originalVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+        
         activity?.let {
             // Store original orientation
             val originalOrientation = it.requestedOrientation
@@ -753,7 +753,7 @@ fun FullScreenVideoPlayer(
 
             // Hide system UI for immersive experience
             val decorView = it.window.decorView
-            val originalVisibility = decorView.systemUiVisibility
+            originalVisibility = decorView.systemUiVisibility
 
             decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                     or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -764,21 +764,23 @@ fun FullScreenVideoPlayer(
         }
 
         onDispose {
-            // Explicitly set back to portrait first
-            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            activity?.let {
+                // Explicitly set back to portrait first
+                it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
-            // Small delay to ensure orientation change completes
-            try {
-                Thread.sleep(100)
-            } catch (e: Exception) {
-                Log.e("FullScreenVideoPlayer", "Error during orientation change delay", e)
+                // Small delay to ensure orientation change completes
+                try {
+                    Thread.sleep(100)
+                } catch (e: Exception) {
+                    Log.e("FullScreenVideoPlayer", "Error during orientation change delay", e)
+                }
+
+                // Then restore window insets
+                WindowCompat.setDecorFitsSystemWindows(it.window, true)
+
+                // Restore system UI visibility
+                it.window.decorView.systemUiVisibility = originalVisibility
             }
-
-            // Then restore window insets
-            WindowCompat.setDecorFitsSystemWindows(activity?.window, true)
-
-            // Restore system UI visibility
-            activity?.window?.decorView?.systemUiVisibility = originalVisibility
         }
     }
 
