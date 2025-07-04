@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Gold circular outline -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M54,28C39.64,28 28,39.64 28,54C28,68.36 39.64,80 54,80C68.36,80 80,68.36 80,54C80,39.64 68.36,28 54,28ZM54,74C43.06,74 34,64.94 34,54C34,43.06 43.06,34 54,34C64.94,34 74,43.06 74,54C74,64.94 64.94,74 54,74Z" />
+
+    <!-- Play button triangle -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M48,44L64,54L48,64V44Z" />
+
+    <!-- MYTUBE text -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M36,85L72,85L72,90L36,90Z" />
+</vector>

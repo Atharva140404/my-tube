@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Vibrant colors for our app -->
+    <color name="jio_blue">#0F3CC9</color>
+    <color name="jio_pink">#FF0266</color>
+    <color name="jio_orange">#FF6B00</color>
+    <color name="jio_yellow">#FFD100</color>
+    <color name="jio_green">#00C853</color>
+    <color name="jio_purple">#AA00FF</color>
+    <color name="jio_cyan">#00B8D4</color>
+    <color name="jio_red">#FF1744</color>
+    
+    <!-- MX Player colors -->
+    <color name="mx_blue">#1976D2</color>
+    <color name="mx_blue_dark">#0D47A1</color>
+    <color name="mx_blue_light">#42A5F5</color>
+    <color name="mx_red">#E53935</color>
+    <color name="mx_orange">#FF9800</color>
+    <color name="mx_green">#4CAF50</color>
+    <color name="mx_yellow">#FFEB3B</color>
+    <color name="mx_gray">#9E9E9E</color>
+    <color name="mx_dark_gray">#212121</color>
+    <color name="mx_black">#000000</color>
+    
+    <!-- Background colors -->
+    <color name="bg_gradient_start">#000000</color>
+    <color name="bg_gradient_end">#121212</color>
+    <color name="card_background">#1E1E1E</color>
+    <color name="card_selected">#1976D2</color>
+    <color name="hot_label">#E53935</color>
+    <color name="recommended_label">#1976D2</color>
+</resources>
